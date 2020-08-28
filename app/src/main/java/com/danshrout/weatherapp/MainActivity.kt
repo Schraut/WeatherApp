@@ -2,6 +2,7 @@ package com.danshrout.weatherapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -15,18 +16,24 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.danshrout.weatherapp.models.WeatherResponse
+import com.danshrout.weatherapp.network.WeatherService
 import com.google.android.gms.location.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import retrofit.*
 
 
 class MainActivity : AppCompatActivity() {
 
     //variable for getting longitude and latitude
     private lateinit var mFusedLocationClient : FusedLocationProviderClient
+
+    // Progress bar
+    private var mProgressDialog: Dialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,11 +94,77 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    // TODO (STEP 2: A alert dialog for denied permissions and if needed to allow it from the settings app info.)
-    // START
-    /**
-     * A function used to show the alert dialog when the permissions are denied and need to allow it from settings app info.
-     */
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation: Location = locationResult.lastLocation
+            val latitude = mLastLocation.latitude
+            Log.i("Current Latitude", "$latitude")
+
+            val longitude = mLastLocation.longitude
+            Log.i("Current Longitude", "$longitude")
+            getLocationWeatherDetails(latitude, longitude)
+        }
+    }
+
+    //Check to see if there is an internet connection
+    private fun getLocationWeatherDetails(longitude: Double, latitude: Double) {
+        if(Constants.isNetworkAvailable(this)) {
+
+            val retrofit: Retrofit = Retrofit.Builder()
+                .baseUrl(Constants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val service: WeatherService = retrofit.create<WeatherService>(WeatherService::class.java)
+
+            val listCall: Call<WeatherResponse> = service.getWeather(
+                latitude, longitude, Constants.METRIC_UNIT, Constants.APP_ID
+            )
+
+            listCall.enqueue(object : Callback<WeatherResponse> {
+
+                override fun onFailure(t: Throwable?) {
+                    Log.e("Errorrrrr", t!!.message.toString())
+                }
+
+                override fun onResponse(
+                    response: Response<WeatherResponse>?,
+                    retrofit: Retrofit?
+                )
+                {
+
+                    if(response!!.isSuccess) {
+
+                        val weatherList: WeatherResponse = response.body()
+                        Log.i("Response Result", "$weatherList")
+
+                    } else {
+                        // If the response is not success then we check the response code.
+                        val rc = response.code()
+                        when (rc) {
+                            400 -> {
+                                Log.e("Error 400", "Bad Request man")
+                            }
+                            404 -> {
+                                Log.e("Error 404", "Not Found")
+                            }
+                            else -> {
+                                Log.e("Error", "Generic Error")
+                            }
+                        }
+                    }
+                }
+
+            })
+
+        } else {
+            Toast.makeText(
+                this@MainActivity,
+                "No internet connection available.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
     private fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this)
             .setMessage("It Looks like you have turned off permissions required for this feature. It can be enabled under Application Settings")
@@ -130,22 +203,16 @@ class MainActivity : AppCompatActivity() {
             Looper.myLooper()
         )
     }
-    // END
 
-    // TODO (STEP 6: Register a request location callback to get the location.)
-    // START
-    /**
-     * A location callback object of fused location provider client where we will get the current location details.
-     */
-    private val mLocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            val mLastLocation: Location = locationResult.lastLocation
-            val latitude = mLastLocation.latitude
-            Log.i("Current Latitude", "$latitude")
+    // Progress Dialog Bar
+    private fun showCustomProgressBar() {
+        mProgressDialog = Dialog(this)
 
-            val longitude = mLastLocation.longitude
-            Log.i("Current Longitude", "$longitude")
-        }
+        // Set the screen content from a layout resource.
+        // The resource will be inflated, adding all top level views to the screen
+        mProgressDialog!!.setContentView(R.layout.dialog_custom_progress)
+
+        // Start dialog to display to the screen.
+        mProgressDialog!!.show()
     }
-    // END
 }
