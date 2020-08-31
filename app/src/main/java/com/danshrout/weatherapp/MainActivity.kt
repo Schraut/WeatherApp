@@ -35,6 +35,12 @@ class MainActivity : AppCompatActivity() {
     // Progress bar
     private var mProgressDialog: Dialog? = null
 
+    // Global variable for the current latitude
+    private var mLatitude: Double = 0.0
+
+    // Global variable for the current longitude
+    private var mLongitude: Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -96,19 +102,20 @@ class MainActivity : AppCompatActivity() {
 
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            val mLastLocation: Location = locationResult.lastLocation
-            val latitude = mLastLocation.latitude
-            Log.i("Current Latitude", "$latitude")
 
-            val longitude = mLastLocation.longitude
-            Log.i("Current Longitude", "$longitude")
-            getLocationWeatherDetails(latitude, longitude)
+            val mLastLocation: Location = locationResult.lastLocation
+            mLatitude = mLastLocation.latitude
+            Log.e("Current Latitude", "$mLatitude")
+            mLongitude = mLastLocation.longitude
+            Log.e("Current Longitude", "$mLongitude")
+
+            getLocationWeatherDetails()
         }
     }
 
     //Check to see if there is an internet connection
-    private fun getLocationWeatherDetails(longitude: Double, latitude: Double) {
-        if(Constants.isNetworkAvailable(this)) {
+    private fun getLocationWeatherDetails() {
+        if(Constants.isNetworkAvailable(this@MainActivity)) {
 
             val retrofit: Retrofit = Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
@@ -118,13 +125,17 @@ class MainActivity : AppCompatActivity() {
             val service: WeatherService = retrofit.create<WeatherService>(WeatherService::class.java)
 
             val listCall: Call<WeatherResponse> = service.getWeather(
-                latitude, longitude, Constants.METRIC_UNIT, Constants.APP_ID
+                mLatitude, mLongitude, Constants.METRIC_UNIT, Constants.APP_ID
             )
 
+            showCustomProgressBar()
+
+            // Callback methods to be executed using Retrofit callback executor
             listCall.enqueue(object : Callback<WeatherResponse> {
 
                 override fun onFailure(t: Throwable?) {
                     Log.e("Errorrrrr", t!!.message.toString())
+                    hideProgressDialog()
                 }
 
                 override fun onResponse(
@@ -135,6 +146,8 @@ class MainActivity : AppCompatActivity() {
 
                     if(response!!.isSuccess) {
 
+                        hideProgressDialog()
+
                         val weatherList: WeatherResponse = response.body()
                         Log.i("Response Result", "$weatherList")
 
@@ -143,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                         val rc = response.code()
                         when (rc) {
                             400 -> {
-                                Log.e("Error 400", "Bad Request man")
+                                Log.e("Error 400", "Bad Request Dude")
                             }
                             404 -> {
                                 Log.e("Error 404", "Not Found")
@@ -214,5 +227,12 @@ class MainActivity : AppCompatActivity() {
 
         // Start dialog to display to the screen.
         mProgressDialog!!.show()
+    }
+
+    // Hide the progress dialog
+    private fun hideProgressDialog() {
+        if (mProgressDialog != null) {
+            mProgressDialog!!.dismiss()
+        }
     }
 }
