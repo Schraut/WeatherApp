@@ -7,21 +7,25 @@ import android.os.Build
 
 object Constants {
 
-    //My API Key from openweathermap.org
+    // My API Key from openweathermap.org
     const val APP_ID: String = "90ea4da22de2af50ded2f309786a23b0"
 
-    //Base URL
+    // Base URL
     const val BASE_URL: String = "https://api.openweathermap.org/data/"
 
-    //Metric unit, it takes care of celsius and fahrenheit
+    // Metric unit for celsius and fahrenheit
     const val METRIC_UNIT: String = "metric"
+
+    // Shared Preferences
+    const val PREFERENCE_NAME = "WeatherAppPreference"
+    const val WEATHER_RESPONSE_DATA = "weather_response_data"
 
     fun isNetworkAvailable(context: Context) : Boolean {
 
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE)
                 as ConnectivityManager
 
-        //Check to see if it's a new phone
+        // Check to see if it's a new phone
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
             val network = connectivityManager.activeNetwork ?: return false
