@@ -54,8 +54,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivity(intent)
         } else {
-            // TODO (STEP 1: Asking the location permission on runtime.)
-            // START
             Dexter.withActivity(this)
                 .withPermissions(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -64,10 +62,7 @@ class MainActivity : AppCompatActivity() {
                 .withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                         if (report!!.areAllPermissionsGranted()) {
-                            // TODO (STEP 7: Call the location request function here.)
-                            // START
                             requestLocationData()
-                            // END
                         }
 
                         if (report.isAnyPermissionPermanentlyDenied) {
@@ -90,6 +85,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun isLocationEnabled(): Boolean {
         //This provides access to the system location services.
         val locationManager: LocationManager =
@@ -99,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         )
 
     }
+
 
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -178,6 +175,8 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+
     private fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this)
             .setMessage("It Looks like you have turned off permissions required for this feature. It can be enabled under Application Settings")
@@ -198,13 +197,8 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
             }.show()
     }
-    // END
 
-    // TODO (STEP 5: Add a function to get the location of the device using the fusedLocationProviderClient.)
-    // START
-    /**
-     * A function to request the current location. Using the fused location provider client.
-     */
+
     @SuppressLint("MissingPermission")
     private fun requestLocationData() {
 
