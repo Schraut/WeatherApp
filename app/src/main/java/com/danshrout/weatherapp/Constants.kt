@@ -14,7 +14,7 @@ object Constants {
     const val BASE_URL: String = "https://api.openweathermap.org/data/"
 
     // Metric unit for celsius and fahrenheit
-    const val METRIC_UNIT: String = "metric"
+    const val METRIC_UNIT: String = "imperial"
 
     // Shared Preferences
     const val PREFERENCE_NAME = "WeatherAppPreference"

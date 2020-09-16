@@ -10,6 +10,7 @@ import android.content.SharedPreferences
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -17,6 +18,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.danshrout.weatherapp.models.WeatherResponse
@@ -51,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     // Global variable for the current longitude
     private var mLongitude: Double = 0.0
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -266,8 +269,8 @@ class MainActivity : AppCompatActivity() {
                 tv_main.text = weatherList.weather[i].main
                 tv_main_description.text = weatherList.weather[i].description
                 tv_temp.text =
-                    weatherList.main.temp.toString() + getUnit(application.resources.configuration.locales.toString())
-                tv_humidity.text = weatherList.main.humidity.toString() + " per cent"
+                    weatherList.main.temp.toString() + " °F"//+ getUnit(application.resources.configuration.locales.toString())
+                tv_humidity.text = weatherList.main.humidity.toString() + "% humidity"
                 tv_min.text = weatherList.main.tempMin.toString() + " min"
                 tv_max.text = weatherList.main.tempMax.toString() + " max"
                 tv_speed.text = weatherList.wind.speed.toString()
@@ -302,14 +305,14 @@ class MainActivity : AppCompatActivity() {
 
     // Function to get the temp unit value
     // Todo get the unit to display in Fahrenheit
-    private fun getUnit(value: String): String? {
-        Log.i("unitttttt", value)
-        var value = "°C"
-        if (value == "US" || "LR" == value || "MM" == value) {
-            value = "°F"
-        }
-        return value
-    }
+//    private fun getUnit(value: String): String? {
+//        Log.i("unitttttt", value)
+//        var value = "°C"
+//        if (value == "US" || "LR" == value || "MM" == value) {
+//            value = "°F"
+//        }
+//        return value
+//    }
 
     // Function for formatted time based on the format and the locale passed to it.
     private fun unixTime(timex: Long): String? {
