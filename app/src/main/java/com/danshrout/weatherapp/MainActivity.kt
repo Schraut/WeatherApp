@@ -3,6 +3,7 @@ package com.danshrout.weatherapp
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -129,6 +130,7 @@ class MainActivity : AppCompatActivity() {
 
     //Check to see if there is an internet connection
     private fun getLocationWeatherDetails() {
+        val apiKey: String = getString(R.string.api_key)
         if(Constants.isNetworkAvailable(this@MainActivity)) {
 
             val retrofit: Retrofit = Retrofit.Builder()
@@ -139,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             val service: WeatherService = retrofit.create<WeatherService>(WeatherService::class.java)
 
             val listCall: Call<WeatherResponse> = service.getWeather(
-                mLatitude, mLongitude, Constants.METRIC_UNIT, Constants.APP_ID
+                mLatitude, mLongitude, Constants.METRIC_UNIT, apiKey
             )
 
             showCustomProgressBar()
