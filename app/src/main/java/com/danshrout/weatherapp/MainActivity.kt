@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                         if (report.isAnyPermissionPermanentlyDenied) {
                             Toast.makeText(
                                 this@MainActivity,
-                                "You have denied location permission. Please allow it is mandatory.",
+                                getString(R.string.permission_message),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

@@ -7,4 +7,7 @@
     <string name="miles_per_hour">miles/hour</string>
 
     <string name="action_refresh">Refresh</string>
+
+<!--    Permission toast message    -->
+    <string name="permission_message">You need to allow location to get weather</string>
 </resources>
